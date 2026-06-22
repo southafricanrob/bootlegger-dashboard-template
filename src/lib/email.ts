@@ -1,17 +1,20 @@
 import { Resend } from "resend";
 
-const apiKey = process.env.RESEND_API_KEY;
-const from = process.env.EMAIL_FROM ?? "Dashboard <onboarding@resend.dev>";
-const appName = process.env.APP_NAME ?? "Dashboard";
-
 /**
  * Deliver a one-time sign-in code.
  *
- * If RESEND_API_KEY is not set (e.g. local dev before Resend is wired up),
- * the code is printed to the server logs instead of emailed so you can still
- * sign in.
+ * Env is read at call-time (not module load) so that changing RESEND_API_KEY /
+ * EMAIL_FROM — e.g. swapping from your Resend account to Bootlegger's — takes
+ * effect on the next send without a rebuild.
+ *
+ * If RESEND_API_KEY is not set (e.g. local dev before Resend is wired up), the
+ * code is printed to the server logs instead of emailed so you can still sign in.
  */
 export async function sendOtpEmail(to: string, otp: string): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.EMAIL_FROM ?? "Dashboard <onboarding@resend.dev>";
+  const appName = process.env.APP_NAME ?? "Dashboard";
+
   if (!apiKey) {
     console.info(
       `\n──────────────────────────────────────────\n[auth] ${appName} sign-in code for ${to}: ${otp}\n      (set RESEND_API_KEY to email this instead)\n──────────────────────────────────────────\n`,
@@ -20,7 +23,7 @@ export async function sendOtpEmail(to: string, otp: string): Promise<void> {
   }
 
   const resend = new Resend(apiKey);
-  const { error } = await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from,
     to,
     subject: `Your ${appName} sign-in code`,
@@ -34,6 +37,9 @@ export async function sendOtpEmail(to: string, otp: string): Promise<void> {
   });
 
   if (error) {
+    console.error("[auth] Resend send failed:", error);
     throw new Error(`Failed to send sign-in code: ${error.message}`);
   }
+
+  console.info(`[auth] sign-in code emailed to ${to} (resend id ${data?.id})`);
 }
