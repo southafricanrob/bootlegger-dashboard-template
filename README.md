@@ -76,6 +76,15 @@ environment variable, seeded on first boot.
 
 Removing or disabling a user immediately revokes their active sessions.
 
+> ⚠️ **`ALLOWED_DOMAINS` and `INITIAL_ADMIN_EMAILS` only take effect after a
+> re-seed.** These env vars are written into the database by `pnpm db:seed` —
+> editing `.env` alone changes nothing, and the gate will silently block the
+> new email/domain (no error, no email sent). After changing either value,
+> run `pnpm db:seed` locally (it's idempotent and never overwrites existing
+> rows). On Railway this runs automatically on every deploy. **Day to day, add
+> people and domains in the Settings UI instead — that's instant, no seed or
+> restart needed.** Seeding is only for bootstrapping the very first admin.
+
 ---
 
 ## Setting up email (Resend)
