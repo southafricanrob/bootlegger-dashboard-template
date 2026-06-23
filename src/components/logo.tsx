@@ -34,7 +34,7 @@ export function Logo({ className }: { className?: string }) {
       <img
         src={src}
         alt={APP_NAME}
-        className={cn("h-7 w-auto select-none", className)}
+        className={cn("h-16 w-auto select-none", className)}
       />
     );
   }
