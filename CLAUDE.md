@@ -55,6 +55,41 @@ hook (won't create an account), both in `src/lib/auth.ts`. Roles are `admin`
   `pnpm dlx shadcn@latest add <name>`. Use the `cn()` helper for class names.
 - The edge guard is `src/proxy.ts` (Next 16's `proxy`, formerly `middleware`).
 
+## Project layout
+
+```
+src/
+  app/
+    (app)/              # signed-in area (protected by the group layout)
+      dashboard/        # the dashboard — the user's starting point
+      settings/         # admin-only: users + domains
+    sign-in/            # email-code sign-in flow
+    api/auth/[...all]/  # better-auth handler
+  components/ui/        # shadcn/ui components
+  db/                   # Drizzle schema + client
+  lib/
+    auth.ts             # better-auth config + access gate
+    access.ts           # domain allowlist + invite checks
+    email.ts            # Resend (with console fallback)
+    session.ts          # requireUser / requireAdmin helpers
+  proxy.ts              # edge guard that redirects to /sign-in
+scripts/                # migrate + seed (run on deploy via `pnpm release`)
+drizzle/                # generated SQL migrations (committed)
+```
+
+Every environment variable is documented in `.env.example` — treat it as the
+canonical list. `EMAIL_FROM` must be on a domain verified in the Resend account
+that owns `RESEND_API_KEY`.
+
+## Microsoft SSO (dormant until enabled)
+
+The "Continue with Microsoft" button is built but hidden until credentials exist.
+To enable it, set `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`, and
+`MICROSOFT_TENANT_ID` (or leave as `common`) from a Microsoft Entra ID app
+registration, then redeploy. Set the Entra redirect URI to
+`https://<your-domain>/api/auth/callback/microsoft`. The same invite + domain
+gate applies to Microsoft sign-ins.
+
 ## Deploying to Railway
 
 Use the **`/deploy`** command — it encodes the exact, tested sequence. It prefers
@@ -82,6 +117,9 @@ the GitHub repo is connected.
 - Move the access checks to the client.
 
 ## Commands
+
+First local run: `pnpm install && pnpm db:migrate && pnpm db:seed && pnpm dev`
+(set `INITIAL_ADMIN_EMAILS` + `ALLOWED_DOMAINS` in `.env` before seeding).
 
 `pnpm dev` · `pnpm build` · `pnpm typecheck` · `pnpm db:generate` ·
 `pnpm db:migrate` · `pnpm db:seed` · `pnpm db:studio`

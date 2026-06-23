@@ -1,249 +1,138 @@
-# Bootlegger Dashboard Boilerplate
+# Bootlegger Dashboard
 
-A secure, batteries-included starting point for internal Bootlegger dashboards,
-built to deploy on [Railway](https://railway.app). Clone it, fill in a few
-values, and you have a working app with sign-in, an access-controlled Settings
-area, and a blank dashboard ready to build on.
+A ready-made, secure starting point for building internal Bootlegger dashboards.
+It already handles the hard parts - logging in, keeping access locked to your
+team, and publishing to the web - so you can focus on the dashboard itself.
 
-**What you get out of the box**
+You build on it by **talking to Claude Code** (the assistant you're using right
+now). You describe what you want in plain English, and it writes and runs the
+code. This guide covers the handful of things only *you* need to do.
 
-- 🔐 **Invite-only sign-in** — only people you add can get in, and only from
-  approved email domains (e.g. `bootlegger.co.za`, `thesilogroup.co.za`).
-- ✉️ **Passwordless sign-in** with a one-time code emailed via [Resend](https://resend.com)
-  (no passwords to manage).
-- ⚙️ **Settings UI** to manage users and allowed domains — no code or redeploy
-  needed.
-- 🗄️ **SQLite database** on a Railway volume — nothing extra to provision, and
-  local development is zero-setup.
-- 🚀 **One-command deploy** on Railway (migrations and seeding run automatically).
-- 🪟 **Microsoft SSO** wired up but dormant — flip it on later with two env vars.
+> **New to all this?** You don't need to know how to code. When a step mentions
+> "the terminal" (the window where commands run), you can simply ask Claude Code
+> to do it - paste the command into the chat and ask it to run it for you.
 
-## Tech stack
+## What it does out of the box
 
-Next.js (App Router) · better-auth · Drizzle ORM · SQLite (libSQL) ·
-Tailwind CSS · shadcn/ui · Resend · Railway
+- 🔐 **Safe sign-in** - people log in with a one-time code sent to their email.
+  No passwords to manage or lose.
+- 👥 **Your team only** - only people you've invited, using an approved company
+  email (like `@bootlegger.co.za`), can get in.
+- ⚙️ **A Settings page** - add or remove people and approved email domains with a
+  few clicks. No code, no waiting.
+- 📊 **A blank dashboard** - ready for you to build whatever you need.
+- 🚀 **One-command publishing** - put it live on the web with a single command.
 
----
+## Two free accounts you'll need
 
-## Run it locally
+Both have free plans that are plenty to start with (you can sign up with GitHub):
 
-You'll need [Node.js 22+](https://nodejs.org) and [pnpm](https://pnpm.io)
-(`npm install -g pnpm`).
+1. **[Resend](https://resend.com)** - sends the login-code emails.
+2. **[Railway](https://railway.app)** - puts your dashboard online.
+
+You'll set these up as you go below.
+
+## 1. Run it on your computer
+
+The simplest way is to ask Claude Code:
+
+> "Set this project up and start it, and make me the first admin - my email is
+> you@bootlegger.co.za."
+
+It installs everything, starts the app at **http://localhost:3000**, and makes you
+the admin. Open that link and sign in with your email.
+
+> While you're testing *before* email is set up, your login code is printed in the
+> terminal (look for a line like `sign-in code for you@…: 123456`) instead of being
+> emailed. That lets you sign in straight away.
+
+<details>
+<summary>Prefer to run it yourself in the terminal?</summary>
+
+You'll need [Node.js 22+](https://nodejs.org) and [pnpm](https://pnpm.io) installed.
 
 ```bash
-# 1. Install dependencies
 pnpm install
-
-# 2. Create your local config
-cp .env.example .env
-#    Open .env and set at least:
-#      BETTER_AUTH_SECRET   (run: openssl rand -base64 32)
-#      INITIAL_ADMIN_EMAILS (your email — this becomes the first admin)
-#      ALLOWED_DOMAINS      (the domains you want to allow)
-#    You can leave RESEND_API_KEY blank for now (see note below).
-
-# 3. Set up the database
-pnpm db:migrate   # creates the tables
-pnpm db:seed      # adds your admin + allowed domains from .env
-
-# 4. Start the app
+cp .env.example .env     # then open .env and set INITIAL_ADMIN_EMAILS to your email
+pnpm db:migrate
+pnpm db:seed
 pnpm dev
 ```
+</details>
 
-Open http://localhost:3000 and sign in with the email you put in
-`INITIAL_ADMIN_EMAILS`.
+## 2. Turn on login emails (Resend)
 
-> **No Resend key yet?** If `RESEND_API_KEY` is blank, the sign-in code is
-> printed to your terminal instead of emailed. Look for a line like
-> `[auth] ... sign-in code for you@example.com: 123456`. This lets you test
-> sign-in before setting up email.
+So codes actually land in people's inboxes:
 
----
+1. Create a free account at [resend.com](https://resend.com).
+2. Add a domain you own and verify it. Resend gives you a few **DNS records** to
+   add - if that's unfamiliar, **ask Claude Code to walk you through it**.
+3. Copy your **API key**.
+4. Give the key to Claude Code and ask it to set up email.
 
-## How access control works
+> You only verify a domain **once** - every dashboard you build can reuse it. You
+> can also test with any domain you control and switch to the real one later.
 
-Two checks must **both** pass for someone to sign in:
+## 3. Add and remove people
 
-1. **Their email domain is on the allowlist** (managed in Settings → Domains).
-2. **They have an enabled invite** (managed in Settings → Users).
+Once you're signed in as an admin, open **Settings** in the app:
 
-So even someone with a valid `@bootlegger.co.za` address can't get in until an
-admin adds them. The first admin(s) come from the `INITIAL_ADMIN_EMAILS`
-environment variable, seeded on first boot.
+- **Users** - invite someone by email, make them an admin or a member, or remove them.
+- **Domains** - choose which email domains are allowed.
 
-- **Admins** can view the dashboard *and* manage users and domains.
-- **Members** can only view the dashboard.
+It's all point-and-click, and changes take effect immediately - no code, no redeploy.
 
-Removing or disabling a user immediately revokes their active sessions.
+## 4. Publish it to the web (Railway)
 
-> ⚠️ **`ALLOWED_DOMAINS` and `INITIAL_ADMIN_EMAILS` only take effect after a
-> re-seed.** These env vars are written into the database by `pnpm db:seed` —
-> editing `.env` alone changes nothing, and the gate will silently block the
-> new email/domain (no error, no email sent). After changing either value,
-> run `pnpm db:seed` locally (it's idempotent and never overwrites existing
-> rows). On Railway this runs automatically on every deploy. **Day to day, add
-> people and domains in the Settings UI instead — that's instant, no seed or
-> restart needed.** Seeding is only for bootstrapping the very first admin.
+**First time only** (about five minutes, once per computer). Open the terminal -
+on a Mac press `Cmd`+`Space`, type "Terminal", and press Enter; on Windows open
+"PowerShell" - then:
 
----
-
-## Setting up email (Resend)
-
-Sign-in codes are sent through Resend. You verify a sending domain **once** and
-then **every** dashboard you deploy can reuse it — it is not per-dashboard.
-
-1. Create an account at [resend.com](https://resend.com).
-2. Add and verify a domain **you own** (add the DNS records Resend gives you).
-   - Tip: use a subdomain like `send.bootlegger.co.za` so it doesn't touch the
-     DNS for your real Outlook/email.
-3. Create an API key.
-4. Set in your environment:
-   - `RESEND_API_KEY` = your key
-   - `EMAIL_FROM` = `Bootlegger Dashboard <noreply@send.bootlegger.co.za>`
-     (the From domain must be the one you verified)
-
-**Testing tip:** you can use your own Resend account and a domain you control
-(e.g. `bootlegger.jemx.app`) to test, then swap to Bootlegger's account later by
-changing just `RESEND_API_KEY` and `EMAIL_FROM` — no code change.
-
----
-
-## Deploy to Railway
-
-Deploying is a one-time setup (a Railway account + the Railway CLI), after which a
-single command in Claude Code — `/deploy` — does everything: creates the project,
-the database volume, the public URL, every setting, and ships it.
-
-### First time only: connect Railway
-
-This part uses the terminal. On a Mac, open the **Terminal** app (press `Cmd`+`Space`,
-type "Terminal", Enter). On Windows, open **PowerShell**. Then:
-
-1. **Create a free Railway account** at [railway.app](https://railway.app) — you can
-   sign up with GitHub.
-
-2. **Install the Railway CLI** (the little tool that talks to Railway). Pick one:
-
+1. Create a free account at [railway.app](https://railway.app).
+2. Install Railway's tool and log in (or paste these into Claude Code and ask it
+   to run them):
    ```bash
-   npm install -g @railway/cli      # works everywhere (uses Node, which you already have)
-   ```
-   ```bash
-   brew install railway             # alternative, on a Mac with Homebrew
-   ```
-
-3. **Log in** (this opens your browser to authorise):
-
-   ```bash
+   npm install -g @railway/cli
    railway login
    ```
+   `railway login` opens your browser - click to approve.
+3. Back in Claude Code, it will ask to enable a tool called **railway** - click approve.
 
-4. **Connect it to Claude Code.** This repo already includes a `.mcp.json`, so the
-   next time you open the project in Claude Code it will ask to enable the **railway**
-   tool — click approve. (If it doesn't appear, run `railway mcp install --agent claude-code`,
-   or install Railway's plugin: `/plugin marketplace add railwayapp/railway-skills`
-   then `/plugin install railway@railway-skills`.)
-
-You only do this once per computer.
-
-### Deploy
-
-In Claude Code, run:
+**Then publish** - in Claude Code, type:
 
 ```
 /deploy
 ```
 
-Answer the few prompts (admin email, allowed domains, Resend key) and it will create
-the Railway project, attach a `/data` volume for the SQLite database, generate a
-strong auth secret, create your public URL and wire it to `BETTER_AUTH_URL`, set all
-the environment variables, and deploy. Migrations and the first-admin seed run
-automatically on boot.
+Answer a few short questions (your admin email, allowed domains, Resend key) and it
+does the rest: sets everything up, puts it online, and gives you a **public link**
+to share with your team.
 
-> Don't have the CLI/MCP yet? `/deploy` will tell you exactly what to install. You
-> can also deploy by hand using the variables below, but the command is the easy path.
+**To update later**, just ask Claude Code to deploy again - or connect the project
+to GitHub so it republishes automatically whenever you save your work.
 
-### What gets set (for reference)
+## 5. Build your dashboard
 
-| Variable | Value |
-|---|---|
-| `DATABASE_URL` | `file:/data/app.db` *(the volume)* |
-| `BETTER_AUTH_SECRET` | auto-generated |
-| `BETTER_AUTH_URL` | your public URL, e.g. `https://your-app.up.railway.app` |
-| `RESEND_API_KEY` | your Resend key |
-| `EMAIL_FROM` | `Bootlegger Dashboard <noreply@send.bootlegger.co.za>` |
-| `ALLOWED_DOMAINS` | `bootlegger.co.za,thesilogroup.co.za` |
-| `INITIAL_ADMIN_EMAILS` | the first admin email(s), comma-separated |
-| `APP_NAME` | `Bootlegger Dashboard` |
+This is the part you actually wanted - and it's all done by chatting with Claude
+Code. For example:
 
-### Updating later
+> "Add a page that shows this month's sales as a chart."
+>
+> "Make a table of our store locations that admins can edit."
 
-Re-run `/deploy` to ship changes, or connect the GitHub repo in Railway
-(**service → Settings → Source**) so every `git push` deploys automatically. Either
-way, Railway runs `pnpm release` (migrations + seed) on each deploy — see
-[`railway.json`](./railway.json).
+Claude Code already knows how this project is organised and the rules it must
+follow, so you can focus on *what* you want, not *how* it's built.
 
----
+## Stuck?
 
-## Turning on Microsoft sign-in later
+Ask Claude Code - it can read this entire project and help with almost anything.
+A few prompts to get going:
 
-The "Continue with Microsoft" button is already built — it just stays hidden
-until credentials exist. When you have a Microsoft Entra ID app registration,
-set these env vars and redeploy:
-
-- `MICROSOFT_CLIENT_ID`
-- `MICROSOFT_CLIENT_SECRET`
-- `MICROSOFT_TENANT_ID` (or leave as `common`)
-
-Set the redirect URI in Entra to `https://your-app.up.railway.app/api/auth/callback/microsoft`.
-The same invite-only + domain rules apply to Microsoft sign-ins.
+- "Start the app and show me how to log in."
+- "Help me set up Resend so emails send."
+- "Deploy this to Railway."
 
 ---
 
-## Building your dashboard
-
-This is a skeleton — the real work goes here:
-
-- **Replace the dashboard page**: [`src/app/(app)/dashboard/page.tsx`](<src/app/(app)/dashboard/page.tsx>).
-- **Add new pages** under [`src/app/(app)/`](<src/app/(app)>) — anything there
-  automatically requires a signed-in user.
-- **Add admin-only pages** under `src/app/(app)/settings/` — those require an
-  admin.
-- **Query the database** with Drizzle via the `db` export in
-  [`src/db/index.ts`](src/db/index.ts). Add tables in
-  [`src/db/schema.ts`](src/db/schema.ts), then run `pnpm db:generate` and
-  `pnpm db:migrate`.
-- **Add UI components** with shadcn/ui: `pnpm dlx shadcn@latest add <component>`.
-
-### Project layout
-
-```
-src/
-  app/
-    (app)/              # signed-in area (protected)
-      dashboard/        # the dashboard — your starting point
-      settings/         # admin-only: users + domains
-    sign-in/            # email-code sign-in flow
-    api/auth/[...all]/  # better-auth handler
-  components/ui/        # shadcn/ui components
-  db/                   # Drizzle schema + client
-  lib/
-    auth.ts             # better-auth config + access gate
-    access.ts           # domain allowlist + invite checks
-    email.ts            # Resend (with console fallback)
-    session.ts          # requireUser / requireAdmin helpers
-  proxy.ts              # edge guard that redirects to /sign-in
-scripts/                # migrate + seed (run on deploy)
-drizzle/                # generated SQL migrations
-```
-
-## Useful commands
-
-| Command | What it does |
-|---|---|
-| `pnpm dev` | Run locally with hot reload |
-| `pnpm build` / `pnpm start` | Production build / start |
-| `pnpm db:generate` | Generate a migration after editing the schema |
-| `pnpm db:migrate` | Apply migrations |
-| `pnpm db:seed` | Seed admins + domains from env (idempotent) |
-| `pnpm db:studio` | Browse the database in a GUI |
-| `pnpm typecheck` | Type-check the project |
+<sub>Built with Next.js, better-auth, Drizzle, SQLite, Tailwind, and shadcn/ui;
+deployed on Railway. Technical notes for the coding agent live in `CLAUDE.md`.</sub>
