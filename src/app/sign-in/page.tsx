@@ -20,10 +20,7 @@ export default async function SignInPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-black p-4">
-      <div className="flex flex-col items-center gap-3">
-        <Logo className="h-14 text-2xl text-white" />
-        {/* <span className="bg-brand h-0.5 w-12 rounded-full" /> */}
-      </div>
+      <Logo className="h-14 text-2xl text-white" />
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardDescription>Sign in to continue</CardDescription>
