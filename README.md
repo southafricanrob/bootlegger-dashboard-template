@@ -108,8 +108,9 @@ Answer a few short questions (your admin email, allowed domains, Resend key) and
 does the rest: sets everything up, puts it online, and gives you a **public link**
 to share with your team.
 
-**To update later**, just ask Claude Code to deploy again - or connect the project
-to GitHub so it republishes automatically whenever you save your work.
+**To update later**, just save and push your changes to GitHub - Railway
+republishes automatically, so you never run `/deploy` again. (Not sure how? Ask
+Claude Code: "commit and push my changes.")
 
 ## 5. Build your dashboard
 

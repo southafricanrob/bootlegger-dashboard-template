@@ -105,10 +105,15 @@ Invariants any deploy must satisfy (the command handles these — don't reinvent
   `pnpm release` seeds the first admin onto the volume.
 - Secrets live only in Railway's variables — never write them into the repo.
 
-Setup prerequisites (one-time, documented in `README.md`): install the Railway CLI,
+`/deploy` connects the **GitHub repo** as the service source when an `origin`
+remote exists, so after the one-time setup **updates ship via `git push`** (Railway
+auto-deploys) and `/deploy` isn't needed again. Repos with no GitHub remote — or the
+CLI engine — fall back to local-upload, where updating means re-running `/deploy`.
+
+Setup prerequisites (one-time, in `README.md`): install the Railway CLI,
 `railway login`, then approve the `railway` MCP from `.mcp.json` (or `railway mcp
-install --agent claude-code`). After the first deploy, `git push` auto-redeploys if
-the GitHub repo is connected.
+install --agent claude-code`). GitHub-connected deploys also need Railway's GitHub
+app authorised once (the command detects this and guides the user).
 
 ## Don't
 
