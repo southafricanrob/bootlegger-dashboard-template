@@ -13,8 +13,10 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
+        <h1 className="border-brand inline-block border-b-2 pb-1 text-2xl font-semibold tracking-tight">
+          Dashboard
+        </h1>
+        <p className="text-muted-foreground mt-2">
           Welcome back{user.name ? `, ${user.name}` : ""}.
         </p>
       </div>

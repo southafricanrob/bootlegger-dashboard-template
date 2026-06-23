@@ -25,10 +25,10 @@ export function TopNav({ isAdmin }: { isAdmin: boolean }) {
             key={link.href}
             href={link.href}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "border-b-2 px-1 py-1.5 text-sm font-medium transition-colors",
               active
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground hover:text-foreground",
+                ? "border-brand text-foreground"
+                : "text-muted-foreground hover:text-foreground border-transparent",
             )}
           >
             {link.label}

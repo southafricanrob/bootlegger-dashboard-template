@@ -23,7 +23,7 @@ export function SettingsNav() {
               className={cn(
                 "border-b-2 px-1 pb-2 text-sm font-medium transition-colors",
                 active
-                  ? "border-primary text-foreground"
+                  ? "border-brand text-foreground"
                   : "text-muted-foreground hover:text-foreground border-transparent",
               )}
             >

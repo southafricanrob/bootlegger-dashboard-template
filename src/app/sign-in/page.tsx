@@ -6,9 +6,9 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { SignInForm } from "./sign-in-form";
+import { Logo } from "@/components/logo";
 
 export default async function SignInPage() {
   const session = await getSession();
@@ -22,8 +22,11 @@ export default async function SignInPage() {
     <main className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">{APP_NAME}</CardTitle>
-          <CardDescription>Sign in to continue</CardDescription>
+          <div className="flex flex-col items-center gap-2">
+            <Logo className="text-2xl" />
+            <span className="bg-brand h-0.5 w-10 rounded-full" />
+          </div>
+          <CardDescription className="pt-1">Sign in to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <SignInForm appName={APP_NAME} microsoftEnabled={microsoftEnabled} />
