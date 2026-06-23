@@ -19,14 +19,14 @@ export default async function SignInPage() {
   );
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-black p-4">
+      <div className="flex flex-col items-center gap-3">
+        <Logo className="h-14 text-2xl text-white" />
+        {/* <span className="bg-brand h-0.5 w-12 rounded-full" /> */}
+      </div>
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <div className="flex flex-col items-center gap-2">
-            <Logo className="text-2xl" />
-            <span className="bg-brand h-0.5 w-10 rounded-full" />
-          </div>
-          <CardDescription className="pt-1">Sign in to continue</CardDescription>
+          <CardDescription>Sign in to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <SignInForm appName={APP_NAME} microsoftEnabled={microsoftEnabled} />
