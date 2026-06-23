@@ -55,6 +55,26 @@ hook (won't create an account), both in `src/lib/auth.ts`. Roles are `admin`
   `pnpm dlx shadcn@latest add <name>`. Use the `cn()` helper for class names.
 - The edge guard is `src/proxy.ts` (Next 16's `proxy`, formerly `middleware`).
 
+## Deploying to Railway
+
+Use the **`/deploy`** command — it encodes the exact, tested sequence. It prefers
+the Railway MCP (pre-wired in `.mcp.json`) and falls back to the Railway CLI.
+
+Invariants any deploy must satisfy (the command handles these — don't reinvent them):
+- One **app service** + one **volume mounted at `/data`**. SQLite needs no separate
+  database service.
+- `DATABASE_URL=file:/data/app.db` (points at the volume).
+- **Order matters:** generate the public domain first, then set `BETTER_AUTH_URL` to
+  exactly `https://<that-domain>` — auth breaks if they don't match.
+- Set all env vars (and an auto-generated `BETTER_AUTH_SECRET`) so the first boot's
+  `pnpm release` seeds the first admin onto the volume.
+- Secrets live only in Railway's variables — never write them into the repo.
+
+Setup prerequisites (one-time, documented in `README.md`): install the Railway CLI,
+`railway login`, then approve the `railway` MCP from `.mcp.json` (or `railway mcp
+install --agent claude-code`). After the first deploy, `git push` auto-redeploys if
+the GitHub repo is connected.
+
 ## Don't
 
 - Commit `.env` or the `data/` SQLite files (both gitignored).

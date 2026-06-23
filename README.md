@@ -110,35 +110,77 @@ changing just `RESEND_API_KEY` and `EMAIL_FROM` — no code change.
 
 ## Deploy to Railway
 
-1. **Push this repo to GitHub**, then in Railway: **New Project → Deploy from
-   GitHub repo** and pick it. Railway auto-detects Next.js and builds it.
+Deploying is a one-time setup (a Railway account + the Railway CLI), after which a
+single command in Claude Code — `/deploy` — does everything: creates the project,
+the database volume, the public URL, every setting, and ships it.
 
-2. **Add a Volume** (this is where the SQLite database lives, so data survives
-   redeploys): on the service, **Settings → Volumes → New Volume**, mount path
-   `/data`.
+### First time only: connect Railway
 
-3. **Set the environment variables** (service → **Variables**). At minimum:
+This part uses the terminal. On a Mac, open the **Terminal** app (press `Cmd`+`Space`,
+type "Terminal", Enter). On Windows, open **PowerShell**. Then:
 
-   | Variable | Value |
-   |---|---|
-   | `DATABASE_URL` | `file:/data/app.db` *(points at the volume)* |
-   | `BETTER_AUTH_SECRET` | a long random string (`openssl rand -base64 32`) |
-   | `BETTER_AUTH_URL` | your public URL, e.g. `https://your-app.up.railway.app` |
-   | `RESEND_API_KEY` | your Resend key |
-   | `EMAIL_FROM` | `Bootlegger Dashboard <noreply@send.bootlegger.co.za>` |
-   | `ALLOWED_DOMAINS` | `bootlegger.co.za,thesilogroup.co.za` |
-   | `INITIAL_ADMIN_EMAILS` | the first admin email(s), comma-separated |
-   | `APP_NAME` | `Bootlegger Dashboard` |
+1. **Create a free Railway account** at [railway.app](https://railway.app) — you can
+   sign up with GitHub.
 
-   > Set these **before** the first deploy so the initial admin and domains get
-   > seeded correctly.
+2. **Install the Railway CLI** (the little tool that talks to Railway). Pick one:
 
-4. **Generate a domain**: service → **Settings → Networking → Generate Domain**,
-   then make sure `BETTER_AUTH_URL` matches it.
+   ```bash
+   npm install -g @railway/cli      # works everywhere (uses Node, which you already have)
+   ```
+   ```bash
+   brew install railway             # alternative, on a Mac with Homebrew
+   ```
 
-5. **Deploy.** On every deploy Railway runs `pnpm release` (which applies
-   migrations and seeds access lists) and then starts the app — see
-   [`railway.json`](./railway.json).
+3. **Log in** (this opens your browser to authorise):
+
+   ```bash
+   railway login
+   ```
+
+4. **Connect it to Claude Code.** This repo already includes a `.mcp.json`, so the
+   next time you open the project in Claude Code it will ask to enable the **railway**
+   tool — click approve. (If it doesn't appear, run `railway mcp install --agent claude-code`,
+   or install Railway's plugin: `/plugin marketplace add railwayapp/railway-skills`
+   then `/plugin install railway@railway-skills`.)
+
+You only do this once per computer.
+
+### Deploy
+
+In Claude Code, run:
+
+```
+/deploy
+```
+
+Answer the few prompts (admin email, allowed domains, Resend key) and it will create
+the Railway project, attach a `/data` volume for the SQLite database, generate a
+strong auth secret, create your public URL and wire it to `BETTER_AUTH_URL`, set all
+the environment variables, and deploy. Migrations and the first-admin seed run
+automatically on boot.
+
+> Don't have the CLI/MCP yet? `/deploy` will tell you exactly what to install. You
+> can also deploy by hand using the variables below, but the command is the easy path.
+
+### What gets set (for reference)
+
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | `file:/data/app.db` *(the volume)* |
+| `BETTER_AUTH_SECRET` | auto-generated |
+| `BETTER_AUTH_URL` | your public URL, e.g. `https://your-app.up.railway.app` |
+| `RESEND_API_KEY` | your Resend key |
+| `EMAIL_FROM` | `Bootlegger Dashboard <noreply@send.bootlegger.co.za>` |
+| `ALLOWED_DOMAINS` | `bootlegger.co.za,thesilogroup.co.za` |
+| `INITIAL_ADMIN_EMAILS` | the first admin email(s), comma-separated |
+| `APP_NAME` | `Bootlegger Dashboard` |
+
+### Updating later
+
+Re-run `/deploy` to ship changes, or connect the GitHub repo in Railway
+(**service → Settings → Source**) so every `git push` deploys automatically. Either
+way, Railway runs `pnpm release` (migrations + seed) on each deploy — see
+[`railway.json`](./railway.json).
 
 ---
 
