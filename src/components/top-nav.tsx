@@ -27,8 +27,8 @@ export function TopNav({ isAdmin }: { isAdmin: boolean }) {
             className={cn(
               "border-b-2 px-1 py-1.5 text-sm font-medium transition-colors",
               active
-                ? "border-brand text-foreground"
-                : "text-muted-foreground hover:text-foreground border-transparent",
+                ? "border-brand text-white"
+                : "border-transparent text-white/60 hover:text-white",
             )}
           >
             {link.label}

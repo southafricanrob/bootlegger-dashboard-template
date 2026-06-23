@@ -37,8 +37,12 @@ export function UserMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
-          <span className="bg-primary text-primary-foreground grid size-7 place-items-center rounded-full text-xs font-medium">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2 text-white hover:bg-white/10 hover:text-white"
+        >
+          <span className="bg-brand text-brand-foreground grid size-7 place-items-center rounded-full text-xs font-medium">
             {initialsOf(name, email)}
           </span>
           <span className="hidden max-w-[12rem] truncate sm:inline">

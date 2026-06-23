@@ -13,7 +13,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b">
+      <header className="bg-black text-white">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-6">
             <Logo />
