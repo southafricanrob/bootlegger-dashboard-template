@@ -10,14 +10,14 @@ working auth, an access-control gate, and a Settings UI so the only thing to
 build is the actual dashboard.
 
 **Stack:** Next.js (App Router) · better-auth · Drizzle ORM · SQLite (libSQL) ·
-Tailwind · shadcn/ui · Resend · Railway. Package manager is **pnpm**.
+Tailwind · shadcn/ui · Resend · Railway. Package manager is **npm**.
 
 ## Gotchas (read before debugging)
 
 - **`ALLOWED_DOMAINS` and `INITIAL_ADMIN_EMAILS` only apply after a re-seed.**
-  These env vars are written into the DB by `pnpm db:seed`. Editing `.env` alone
+  These env vars are written into the DB by `npm run db:seed`. Editing `.env` alone
   does nothing — the access gate reads the database, not the environment. After
-  changing either, run `pnpm db:seed` (idempotent; never overwrites existing
+  changing either, run `npm run db:seed` (idempotent; never overwrites existing
   rows). On Railway it runs automatically each deploy. Day-to-day, add users and
   domains via the **Settings UI**, not by re-seeding.
 - **A `{"success":true}` from the sign-in endpoint does NOT mean an email was
@@ -49,10 +49,10 @@ hook (won't create an account), both in `src/lib/auth.ts`. Roles are `admin`
 - **Mutations** are server actions (`"use server"`) that call `requireUser`/
   `requireAdmin` first, then `revalidatePath`.
 - **DB:** import `db` from `src/db`. Add tables in `src/db/schema.ts`, then
-  `pnpm db:generate` (creates a migration) and `pnpm db:migrate`. Migrations in
+  `npm run db:generate` (creates a migration) and `npm run db:migrate`. Migrations in
   `drizzle/` are committed.
 - **UI:** shadcn/ui in `src/components/ui`. Add more with
-  `pnpm dlx shadcn@latest add <name>`. Use the `cn()` helper for class names.
+  `npx shadcn@latest add <name>`. Use the `cn()` helper for class names.
 - The edge guard is `src/proxy.ts` (Next 16's `proxy`, formerly `middleware`).
 
 ## Project layout
@@ -73,7 +73,7 @@ src/
     email.ts            # Resend (with console fallback)
     session.ts          # requireUser / requireAdmin helpers
   proxy.ts              # edge guard that redirects to /sign-in
-scripts/                # migrate + seed (run on deploy via `pnpm release`)
+scripts/                # migrate + seed (run on deploy via `npm run release`)
 drizzle/                # generated SQL migrations (committed)
 ```
 
@@ -102,7 +102,7 @@ Invariants any deploy must satisfy (the command handles these — don't reinvent
 - **Order matters:** generate the public domain first, then set `BETTER_AUTH_URL` to
   exactly `https://<that-domain>` — auth breaks if they don't match.
 - Set all env vars (and an auto-generated `BETTER_AUTH_SECRET`) so the first boot's
-  `pnpm release` seeds the first admin onto the volume.
+  `npm run release` seeds the first admin onto the volume.
 - Secrets live only in Railway's variables — never write them into the repo.
 
 `/deploy` connects the **GitHub repo** as the service source when an `origin`
@@ -123,10 +123,10 @@ app authorised once (the command detects this and guides the user).
 
 ## Commands
 
-First local run: `pnpm install && pnpm db:migrate && pnpm db:seed && pnpm dev`
+First local run: `npm install && npm run db:migrate && npm run db:seed && npm run dev`
 (set `INITIAL_ADMIN_EMAILS` + `ALLOWED_DOMAINS` in `.env` before seeding).
 
-`pnpm dev` · `pnpm build` · `pnpm typecheck` · `pnpm db:generate` ·
-`pnpm db:migrate` · `pnpm db:seed` · `pnpm db:studio`
+`npm run dev` · `npm run build` · `npm run typecheck` · `npm run db:generate` ·
+`npm run db:migrate` · `npm run db:seed` · `npm run db:studio`
 
-Run `pnpm typecheck` after non-trivial changes.
+Run `npm run typecheck` after non-trivial changes.

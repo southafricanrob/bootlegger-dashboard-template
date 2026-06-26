@@ -49,15 +49,38 @@ the admin. Open that link and sign in with your email.
 <details>
 <summary>Prefer to run it yourself in the terminal?</summary>
 
-You'll need [Node.js 22+](https://nodejs.org) and [pnpm](https://pnpm.io) installed.
+**You only need one thing installed: Node.js.** It comes bundled with `npm`, the
+tool that downloads everything else this project needs. Get the **LTS** version -
+it must be version 22 or newer.
+
+**On a Mac:**
+
+1. Go to [nodejs.org](https://nodejs.org) and download the **LTS** installer.
+2. Open the downloaded `.pkg` file and click through it (the defaults are fine).
+3. Open the terminal: press `Cmd`+`Space`, type "Terminal", press Enter.
+
+**On Windows:**
+
+1. Go to [nodejs.org](https://nodejs.org) and download the **LTS** installer.
+2. Open the downloaded `.msi` file and click through it (the defaults are fine).
+3. Open the terminal: press the Start button, type "PowerShell", press Enter.
+
+To check it worked, type `node --version` and press Enter - you should see a
+number like `v22.x.x` or higher.
+
+**Then, in the terminal from this project's folder, run these one at a time:**
 
 ```bash
-pnpm install
+npm install
 cp .env.example .env     # then open .env and set INITIAL_ADMIN_EMAILS to your email
-pnpm db:migrate
-pnpm db:seed
-pnpm dev
+npm run db:migrate
+npm run db:seed
+npm run dev
 ```
+
+> On Windows PowerShell, use `copy .env.example .env` instead of the `cp` line.
+
+When it's running, open **http://localhost:3000** in your browser.
 </details>
 
 ## 2. Turn on login emails (Resend)

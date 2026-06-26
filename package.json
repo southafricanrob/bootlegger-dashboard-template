@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.28.2",
   "engines": {
     "node": ">=22"
   },
@@ -17,7 +16,7 @@
     "db:migrate": "node --env-file-if-exists=.env scripts/migrate.mjs",
     "db:seed": "node --env-file-if-exists=.env scripts/seed.mjs",
     "db:studio": "drizzle-kit studio",
-    "release": "pnpm db:migrate && pnpm db:seed"
+    "release": "npm run db:migrate && npm run db:seed"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
@@ -51,12 +50,5 @@
     "eslint-config-next": "^16.2.9",
     "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp",
-      "unrs-resolver"
-    ]
   }
 }

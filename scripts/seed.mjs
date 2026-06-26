@@ -4,7 +4,7 @@
 //
 // Uses INSERT OR IGNORE, so existing rows are never overwritten — safe to run
 // on every deploy. Run automatically on deploy (see `release`) and locally via
-// `pnpm db:seed`.
+// `npm run db:seed`.
 import { createClient } from "@libsql/client";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";

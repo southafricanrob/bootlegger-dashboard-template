@@ -1,5 +1,5 @@
 // Applies committed Drizzle migrations to the SQLite database.
-// Run automatically on deploy (see `release` script) and locally via `pnpm db:migrate`.
+// Run automatically on deploy (see `release` script) and locally via `npm run db:migrate`.
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
